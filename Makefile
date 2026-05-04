@@ -19,6 +19,7 @@ OBJS = \
 	string.o\
 	swtch.o\
 	syscall.o\
+	sync.o\
 	sysfile.o\
 	sysproc.o\
 	timer.o\
@@ -167,6 +168,7 @@ UPROGS=\
 	_ln\
 	_ls\
 	_mkdir\
+	_prodcons\
 	_rm\
 	_sh\
 	_stressfs\

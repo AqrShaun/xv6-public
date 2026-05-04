@@ -96,3 +96,19 @@ sys_hello(void)
   cprintf("Hello from kernel! PID=%d\n", proc->pid);
   return 0;
 }
+
+int
+sys_produce(void)
+{
+  int n;
+  if(argint(0, &n) < 0)
+    return -1;
+  buffer_produce(n);
+  return 0;
+}
+
+int
+sys_consume(void)
+{
+  return buffer_consume();
+}
