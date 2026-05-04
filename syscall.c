@@ -129,6 +129,7 @@ syscall(void)
   int num;
 
   num = proc->tf->eax;
+  cprintf("[KERNEL] enter syscall %d\n", num);
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
     proc->tf->eax = syscalls[num]();
   } else {
