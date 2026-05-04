@@ -289,6 +289,7 @@ scheduler(void)
       proc = p;
       switchuvm(p);
       p->state = RUNNING;
+      cprintf("[SCHED] switch to pid=%d name=%s\n", p->pid, p->name);
       swtch(&cpu->scheduler, p->context);
       switchkvm();
 
