@@ -1,135 +1,232 @@
-# xv6 操作系统实验环境搭建指南
+# XV6 操作系统实验报告
 
-## 实践任务步骤
+## 一、实验内容说明
 
-### 1. 下载 xv6 代码
-- 源码地址：[https://github.com/mit-pdos/xv6-public/releases/tag/xv6-rev9](https://github.com/mit-pdos/xv6-public/releases/tag/xv6-rev9)
+本实验完成了 xv6 操作系统的第一层机制观察和第二层机制理解任务：
 
-### 2. VS Code 配置
-- 安装 Remote-SSH 扩展
+### 任务列表
 
-### 3. 虚拟机安装
-
-#### 安装 VMware
-- 保姆级教程：[VMware安装教程](https://blog.csdn.net/weixin_74195551/article/details/127288338)
-- 详细指南：[VMware安装指南](https://zhuanlan.zhihu.com/p/1924574186296316112)
-- 官网下载：[VMware Workstation](https://www.vmware.com/products/desktop-hypervisor/workstation-and-fusion)
-- 许可证密钥：[VMware密钥获取](https://blog.csdn.net/qq_51600482/article/details/141248778)
-
-#### Ubuntu 安装教程
-- 基础安装：[Ubuntu安装教程](https://blog.csdn.net/weixin_44781249/article/details/138048333)
-- 专业指南：[Ubuntu专业安装](https://blog.csdn.net/llm_hao/article/details/124522423)
-- Ubuntu 22.04 教程：[Ubuntu 22.04安装](https://www.cnblogs.com/ddcoder/p/18027575)
-
-## 虚拟机配置方案
-
-### 推荐配置方案
-
-#### 方案1：中等性能（推荐，平衡性好）
-- **处理器数量**：2
-- **每个处理器的内核数量**：4
-- **总内核数**：8个逻辑核心
-- **说明**：给宿主机留8个核心，运行流畅
-
-#### 方案2：高性能（如果主要用于虚拟机）
-- **处理器数量**：2
-- **每个处理器的内核数量**：6
-- **总内核数**：12个逻辑核心
-- **说明**：给宿主机留4个核心
-
-#### 方案3：保守配置（稳定优先）
-- **处理器数量**：2
-- **每个处理器的内核数量**：2
-- **总内核数**：4个逻辑核心
-- **说明**：给xv6学习足够用，宿主机更流畅
-
-## xv6 特定建议
-
-xv6 是教学操作系统，不需要太多资源：
-
-- **最小配置**：1个处理器，2个核心就足够
-- **推荐配置**：2个处理器，4个核心（总8线程）
-- **最大配置**：不要超过你物理核心的50-75%
-
-### 具体设置步骤
-
-#### 在 VirtualBox 中：
-1. 选择虚拟机 → 设置 → 系统 → 处理器
-2. **处理器数量**：2（如果CPU支持多插槽）
-3. **执行上限**：100%
-4. **启用PAE/NX**：勾选
-5. **每个处理器的内核数量**：4
-6. **总显示**：8个CPU
-
-#### 在 VMware 中：
-1. 虚拟机设置 → 处理器
-2. **处理器数量**：2
-3. **每个处理器的核心数量**：4
-4. **总处理器核心数**：8
-
-### 重要原则
-1. **不要分配全部核心**：给宿主机留至少4-8个逻辑核心
-2. **处理器数量 ≤ 物理插槽数**：一般现代CPU是1个插槽
-3. **总虚拟核心数 ≤ 逻辑处理器数 - 2~4个**
-4. **xv6 特点**：作为教学OS，2-4个核心就足够学习和实验
-
-## 我的建议
-
-对于16逻辑处理器的机器，运行xv6虚拟机：
-
-- **处理器**：2
-- **每个处理器内核数**：4
-- **总虚拟核心**：8
-- **内存**：分配2-4GB
-
-这样可以：
-- ✅ 保证虚拟机性能
-- ✅ 宿主机仍然流畅
-- ✅ 足够运行xv6和实验
-- ✅ 可以测试多核功能
-
-## VS Code SSH远程连接Ubuntu
-
-- 连接教程：[VS Code SSH连接Ubuntu](https://blog.csdn.net/weixin_43764974/article/details/124003762)
-- 详细配置：[SSH连接配置](https://blog.csdn.net/weixin_74245190/article/details/143522384)
-
-## 环境搭建完成后的验证步骤
-
-1. **测试xv6编译**：
-   ```bash
-   cd xv6-public
-   make
-   ```
-
-2. **启动xv6**：
-   ```bash
-   make qemu
-   ```
-
-3. **退出xv6**：按 `Ctrl+A`，然后按 `X`
-
-## 常见问题解决
-
-1. **编译错误**：确保安装了必要的编译工具
-   ```bash
-   sudo apt update
-   sudo apt install build-essential gdb
-   ```
-
-2. **QEMU问题**：安装QEMU模拟器
-   ```bash
-   sudo apt install qemu-system-x86
-   ```
-
-3. **权限问题**：确保有足够的权限执行命令
-
-## 下一步学习建议
-
-1. 阅读xv6源码的`README`文件
-2. 尝试修改简单的系统调用
-3. 添加新的用户程序
-4. 理解进程调度机制
+| 任务编号 | 任务名称 | 层级 | 文件修改 |
+|---------|---------|------|---------|
+| 1 | 系统调用路径跟踪 | 第一层 | printf.c, syscall.c, sysfile.c |
+| 2 | 调度过程观察 | 第一层 | proc.c |
+| 3 | 内存分配观察 | 第一层 | kalloc.c |
+| 4 | 系统调用扩展（hello） | 第二层 | user.h, syscall.h, usys.S, sysproc.c, syscall.c, hello.c, Makefile |
 
 ---
 
-*此文档持续更新，如有问题请及时反馈*
+## 二、任务实现过程
+
+### 任务 1：系统调用路径跟踪
+
+**目标**：跟踪 `write` 系统调用的完整路径，观察用户程序到内核的调用链。
+
+**实现位置**：
+
+1. **用户程序调用前** - [printf.c](file:///d:/xv6/xv6-public-xv6-rev9/xv6-public-xv6-rev9/printf.c#L46-L49)
+   ```c
+   if(!printing){
+       printing = 1;
+       write(fd, "[USER] calling write\n", 21);
+   }
+   ```
+   在 `printf()` 函数开头添加调试输出，使用 `static int printing` 标志防止递归调用。
+
+2. **syscall.c 中 syscall() 函数** - [syscall.c](file:///d:/xv6/xv6-public-xv6-rev9/xv6-public-xv6-rev9/syscall.c#L131)
+   ```c
+   cprintf("[KERNEL] enter syscall %d\n", num);
+   ```
+   在系统调用入口处打印 syscall 编号。
+
+3. **sys_write() 实现处** - [sysfile.c](file:///d:/xv6/xv6-public-xv6-rev9/xv6-public-xv6-rev9/sysfile.c#L86)
+   ```c
+   cprintf("[KERNEL] sys_write invoked\n");
+   ```
+
+**实验输出示例**：
+```
+[USER] calling write
+[KERNEL] enter syscall 4
+[KERNEL] sys_write invoked
+```
+
+**观察结论**：
+- 系统调用路径清晰：用户态 printf → 内核 syscall() → 具体 sys_write()
+- syscall 编号 4 对应 write 系统调用
+
+---
+
+### 任务 2：调度过程观察
+
+**目标**：在 `scheduler()` 中添加日志，观察进程切换行为。
+
+**实现位置** - [proc.c](file:///d:/xv6/xv6-public-xv6-rev9/xv6-public-xv6-rev9/proc.c#L293)：
+```c
+cprintf("[SCHED] switch to pid=%d name=%s\n", p->pid, p->name);
+```
+
+**实验输出示例**：
+```
+[SCHED] switch to pid=1 name=sh
+[SCHED] switch to pid=2 name=echo
+[SCHED] switch to pid=1 name=sh
+[SCHED] switch to pid=2 name=echo
+```
+
+**观察结论**：
+- 不同进程交替执行：sh 和 echo 进程交替获得 CPU
+- 同一进程可能连续运行多次（取决于时间片和进程状态）
+- 调度器按顺序遍历进程表，选择第一个 RUNNABLE 状态的进程
+
+---
+
+### 任务 3：内存分配观察
+
+**目标**：在 `kalloc()` 中记录页分配情况，观察分配模式。
+
+**实现位置** - [kalloc.c](file:///d:/xv6/xv6-public-xv6-rev9/xv6-public-xv6-rev9/kalloc.c#L95-L96)：
+```c
+if(r)
+    cprintf("[MEM] alloc page at 0x%x\n", (uint)r);
+```
+
+**实验输出示例**：
+```
+[MEM] alloc page at 0x8010d000
+[MEM] alloc page at 0x8010c000
+[MEM] alloc page at 0x8010b000
+[MEM] alloc page at 0x8010a000
+```
+
+**观察结论**：
+- 分配地址呈递减趋势（从高地址向低地址分配）
+- 分配是连续的（地址每次减少 PGSIZE=4096 字节）
+- 符合首次适配（first-fit）策略：优先使用空闲链表头部的页
+
+---
+
+### 任务 4：系统调用扩展（新增 hello()）
+
+**目标**：在 xv6 中新增一个简单的 `hello()` 系统调用，实现从用户态到内核态的完整调用链。
+
+**实现步骤**：
+
+1. **在 user.h 中添加声明** - [user.h](file:///d:/xv6/xv6-public-xv6-rev9/xv6-public-xv6-rev9/user.h#L26)
+   ```c
+   int hello(void);
+   ```
+
+2. **在 syscall.h 中添加系统调用编号** - [syscall.h](file:///d:/xv6/xv6-public-xv6-rev9/xv6-public-xv6-rev9/syscall.h#L23)
+   ```c
+   #define SYS_hello  22
+   ```
+
+3. **在 usys.S 中添加系统调用封装** - [usys.S](file:///d:/xv6/xv6-public-xv6-rev9/xv6-public-xv6-rev9/usys.S#L32)
+   ```c
+   SYSCALL(hello)
+   ```
+
+4. **在 sysproc.c 中实现内核函数** - [sysproc.c](file:///d:/xv6/xv6-public-xv6-rev9/xv6-public-xv6-rev9/sysproc.c#L93-L98)
+   ```c
+   int
+   sys_hello(void)
+   {
+     cprintf("Hello from kernel! PID=%d\n", proc->pid);
+     return 0;
+   }
+   ```
+
+5. **在 syscall.c 中注册系统调用** - [syscall.c](file:///d:/xv6/xv6-public-xv6-rev9/xv6-public-xv6-rev9/syscall.c#L101)
+   ```c
+   extern int sys_hello(void);
+   // ...
+   [SYS_hello]   sys_hello,
+   ```
+
+6. **创建用户测试程序 hello.c** - [hello.c](file:///d:/xv6/xv6-public-xv6-rev9/xv6-public-xv6-rev9/hello.c)
+   ```c
+   #include "types.h"
+   #include "stat.h"
+   #include "user.h"
+   
+   int
+   main(void)
+   {
+     printf(1, "Calling hello() system call...\n");
+     hello();
+     printf(1, "hello() system call returned\n");
+     exit();
+   }
+   ```
+
+7. **在 Makefile 中添加 hello 到 UPROGS** - [Makefile](file:///d:/xv6/xv6-public-xv6-rev9/xv6-public-xv6-rev9/Makefile#L164)
+   ```c
+   _hello\
+   ```
+
+**实验输出示例**：
+```
+[USER] calling write
+Calling hello() system call...
+[USER] calling write
+[KERNEL] enter syscall 22
+Hello from kernel! PID=2
+[USER] calling write
+hello() system call returned
+```
+
+**观察结论**：
+- 新增系统调用成功完成从用户态到内核态的调用
+- 系统调用编号 22 对应 hello
+- 内核可以正确访问当前进程的 PID
+
+---
+
+## 三、遇到的问题及解决方法
+
+### 问题 1：printf 递归调用导致死循环
+
+**问题描述**：最初在 `printf` 中直接调用 `write` 输出调试信息，但由于 `write` 内部又调用 `printf`，导致无限递归。
+
+**解决方法**：使用 `static int printing` 标志。第一次进入 `printf` 时设置标志并输出调试信息，输出完成前阻止递归调用。
+
+```c
+static int printing = 0;
+if(!printing){
+    printing = 1;
+    write(fd, "[USER] calling write\n", 21);
+}
+// ... printf 主体 ...
+printing = 0;
+```
+
+### 问题 2：usys.S 中无法直接调用 cprintf
+
+**问题描述**：尝试在汇编文件 usys.S 中使用 `SYSCALL_TRACE` 宏直接调用 `cprintf`，但用户态汇编无法访问内核函数。
+
+**解决方法**：放弃在 usys.S 中添加调试，改为在更合适的层级添加。最终选择修改 `printf.c`，因为 `printf` 是用户程序调用 `write` 的主要入口。
+
+### 问题 3：Windows 环境下无法执行 make
+
+**问题描述**：在 Windows PowerShell 环境中直接运行 `make` 命令失败，提示找不到该命令。
+
+**解决方法**：xv6 需要在 Linux/Unix 环境下编译运行。可通过以下方式解决：
+- 使用 WSL (Windows Subsystem for Linux)
+- 使用虚拟机安装 Linux
+- 使用 Docker 容器
+
+---
+
+## 四、实验总结
+
+本实验完成了 xv6 操作系统的第一层机制观察和第二层机制理解任务：
+
+### 第一层：机制观察
+1. **系统调用机制**：通过跟踪 `write` 系统调用，清晰展示了从用户态到内核态的完整调用路径
+2. **进程调度机制**：观察到多进程交替执行，调度器按顺序遍历进程表选择 RUNNABLE 进程
+3. **内存分配机制**：验证了页分配采用首次适配策略，地址连续递减
+
+### 第二层：机制理解
+4. **系统调用扩展**：成功新增了 `hello()` 系统调用，完整实现了从用户态接口到内核实现的整个流程
+
+实验加深了对操作系统底层机制的理解，为后续的深入学习和开发奠定了基础。
